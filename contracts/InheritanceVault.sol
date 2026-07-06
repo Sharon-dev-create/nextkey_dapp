@@ -70,7 +70,7 @@ contract InheritanceVault is ReentrancyGuard {
 
     Beneficiary[] private _beneficiaries;
     address[] private _tokens;
-    address[] private _gaurdians;
+    address[] private _guardians;
 
     mapping(address => bool) public isBeneficiary;
     mapping(address => bool) public isGuardian;
@@ -83,6 +83,9 @@ contract InheritanceVault is ReentrancyGuard {
     event BeneficiariesSet(address[] indexed wallets, uint16[] indexed shares);
     event TokenRegistered(address indexed token);
     event TokenUnregistered(address indexed token);
+    event GuardianAdded(address indexed guardian);
+    event CheckedIn(uint256 timestamp);
+    event GuardianRemoved(address indexed guardian);
 
     // Errors
     error InvalidAddress();
@@ -96,17 +99,21 @@ contract InheritanceVault is ReentrancyGuard {
     error TokenAlreadyRegistered();
     error TooManyTokens();
     error TokenNotRegistered();
+    error GuardianAlreadyExists();
+    error TooManyGuardians();
+    error OnlyOwner();
+    error GuardianNotFound();
 
 
     // Contructor
     constructor(address _owner, uint256 _checkInInterval, uint256 _gracePeriod,
     uint256 _claimDelay) {
         if(_owner == address(0)) revert InvalidAddress();
-        _assertValidTimings(_checkInterval, _gracePeriod, _claimDelay);
+        _assertValidTimings(_checkInInterval, _gracePeriod, _claimDelay);
 
         owner         = _owner;
         factory       = msg.sender;
-        checkInterval = _checkInInterval;
+        checkInInterval = _checkInInterval;
         gracePeriod   = _gracePeriod;
         claimDelay    = _claimDelay;
         lastCheckIn   = block.timestamp;
@@ -125,7 +132,7 @@ contract InheritanceVault is ReentrancyGuard {
     }
 
     modifier onlyGaurdian() {
-        if (!isGaurdian[msg.sender]) revert OnlyGaurdian();
+        if (!isGuardian[msg.sender]) revert OnlyGaurdian();
         _;
     }
 
@@ -142,7 +149,7 @@ contract InheritanceVault is ReentrancyGuard {
 
     //Functions
     function checkIn() external onlyOwner notClaimed {
-        lastCheckIn = block.tiimestamp;
+        lastCheckIn = block.timestamp;
 
         if (status ==  VaultStatus.Inactive || status == VaultStatus.Claiming) {
             claimInitiatedAt = 0;
@@ -230,6 +237,33 @@ contract InheritanceVault is ReentrancyGuard {
     }
 
     /**
+     * @notice Add a guardian — a trusted person who can pause an active
+     *         claim to give the owner more time to respond.
+     */
+    function addGuardian(address guardian) external onlyOwner notClaimed {
+        if (guardian == address(0)) revert InvalidAddress();
+        if (guardian == owner)  revert InvalidAddress();
+        if (isGuardian[guardian]) revert GuardianAlreadyExists();
+        if (_guardians.length >= MAX_GUARDIANS) revert TooManyGuardians();
+
+        _guardians.push(guardian);
+        isGuardian[guardian] = true;
+
+        emit GuardianAdded(guardian);
+    }
+
+    /**
+     * @notice Remove a guardian.
+     */
+    function removeGuardian(address guardian) external onlyOwner {
+        if (!isGuardian[guardian]) revert GuardianNotFound();
+
+        isGuardian[guardian] = false;
+        _removeAddress(_guardians, guardian);
+        emit GuardianRemoved(guardian);
+    }
+
+    /**
      * @notice Update timing parameters. Callable at any non-Claimed status.
      */
     function updateTimings(uint256 _checkInInterval, uint256 _gracePeriod,
@@ -256,9 +290,9 @@ contract InheritanceVault is ReentrancyGuard {
 
     function _removeAddress(address[] storage arr, address target) internal {
         uint256 len = arr.length;
-        for (uint256 i; i < len: ++i){
+        for (uint256 i; i < len; ++i){
             if (arr[i] == target) {
-                arr[i] arr[len - 1];
+                arr[i] = arr[len - 1];
                 arr.pop();
                   return;
             }
