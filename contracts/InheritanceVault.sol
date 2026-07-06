@@ -80,6 +80,8 @@ contract InheritanceVault is ReentrancyGaurd {
     event ClaimCancelled(address indexed cancelledBy);
     event VaultReactivated(uint256 timestamp);
     event TimingsUpdated(uint256 indexed checkInInterval, uint256 gracePeriod, uint256 claimDelay);
+    event BeneficiariesSet(address[] indexed wallets, uint16[] indexed shares);
+    event TokenRegistered(address indexed token);
 
     // Errors
     error InvalidAddress();
@@ -91,6 +93,8 @@ contract InheritanceVault is ReentrancyGaurd {
     error TooManyBeneficiaries();
     error InvalidShares();
     error InvalidAddress();
+    error TokenAlreadyRegistered();
+    error TooManyTokens();
 
 
     // Contructor
@@ -189,10 +193,37 @@ contract InheritanceVault is ReentrancyGaurd {
 
          // clear old list
          for (uint256 i; i < wallets.length; ++i) {
-            isBeneficiary[_beneficiaries[i].wallet] = falsel
+            isBeneficiary[_beneficiaries[i].wallet] = false;
          }
          delete _beneficiaries;
+
+         // write new list
+         for (uint256 i; i < wallets.length; ++i) {
+            _beneficiaries.push(Beneficiary(wallets[i], shares[i]));
+            isBeneficiary[wallets[i]] = true;
+         }
+
+         emit BeneficiariesSet(wallets, shares);
      }
+
+     /**
+     * @notice Register an ERC-20 token to be distributed on claim.
+     *
+     * @dev    The owner must separately call approve() on the token contract
+     *         itself. This function only tells the vault which tokens to
+     *         attempt to distribute. Tokens with zero allowance or zero
+     *         balance at claim time are skipped gracefully.
+     */
+    function registerToken(address token) external onlyOwner notClaimes {
+        if (token == address(0))   revert InvalidAddress();
+        if (isRegisteredToken[token]) revert TokenAlreadyRegistered();
+        if (_tokens.length >= MAX_TOKENS) revert TooManyTokens();
+
+        _token.push(token);
+        isRegisteredToken[token] = true;
+
+        emit TokenRegistered(token);
+    }
 
     /**
      * @notice Update timing parameters. Callable at any non-Claimed status.
