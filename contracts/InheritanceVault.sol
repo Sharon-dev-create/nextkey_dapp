@@ -79,6 +79,7 @@ contract InheritanceVault is ReentrancyGaurd {
     // Events
     event ClaimCancelled(address indexed cancelledBy);
     event VaultReactivated(uint256 timestamp);
+    event TimingsUpdated(uint256 indexed checkInInterval, uint256 gracePeriod, uint256 claimDelay);
 
     // Errors
     error InvalidAddress();
@@ -86,6 +87,10 @@ contract InheritanceVault is ReentrancyGaurd {
     error OnlyBeneficiary();
     error OnlyGaurdian();
     error AlreadyClaimed();
+    error NoBeneficiariesConfigured();
+    error TooManyBeneficiaries();
+    error InvalidShares();
+    error InvalidAddress();
 
 
     // Contructor
@@ -154,5 +159,44 @@ contract InheritanceVault is ReentrancyGaurd {
             _claimDelay      < MIN_CLAIM_DELAY      ||
             _claimDelay      > MAX_CLAIM_DELAY
         ) revert InvalidTimings();
+    }
+
+    /**
+     * @notice Replace the entire beneficiary list atomically.
+     *         All previous beneficiaries are removed and the new list is set.
+     *
+     * @dev    Shares must sum to exactly BASIS_POINTS (10_000).
+     *         Owner cannot be a beneficiary.
+     *         Maximum MAX_BENEFICIARIES entries.
+     *
+     * @param wallets  Ordered list of beneficiary addresses.
+     * @param shares   Basis-point share for each wallet (must sum to 10_000).
+     */
+     function setBeneficiaries(address[] calldata wallets, uint16[] calldata shares)
+      external onlyOwner notClaimed{
+         if (wallets.length == 0) revert NoBeneficiariesConfigured();
+         if (wallets.length > MAX_BENEFICIARIES) revert TooManyBeneficiaries();
+         if (wallets.length != shares.length) revert InvalidShares();
+
+         // Validate shares
+         uint256 total;
+         for (uint256 i; i < shares.length; ++i){
+            if (wallets[i] == address(0)) revert InvalidAddress();
+            if (wallets[i] == owner) revert InvalidAddress();
+            total += shares[i];
+         }
+         if (total != BASIS_POINTS) revert InvalidShares();
+     }
+
+    /**
+     * @notice Update timing parameters. Callable at any non-Claimed status.
+     */
+    function updateTimings(uint256 _checkInInterval, uint256 _gracePeriod,
+    uint256 _claimDelay) external onlyOwner notClaimed {
+        _assertValidTimings(_checkInInterval, _gracePeriod, _claimDelay);
+        checkInInterval = _checkInInterval;
+        gracePeriod     = _gracePeriod;
+        claimDelay      = _claimDelay;
+        emit TimingsUpdated(_checkInInterval, _gracePeriod, _claimDelay);      
     }
 }
