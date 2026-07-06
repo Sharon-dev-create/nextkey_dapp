@@ -103,6 +103,8 @@ contract InheritanceVault is ReentrancyGuard {
     error TooManyGuardians();
     error OnlyOwner();
     error GuardianNotFound();
+    error ClaimAlreadyActive();
+    error CheckInWindowStillOpen(uint256 windowClosesAt);
 
 
     // Contructor
@@ -276,8 +278,16 @@ contract InheritanceVault is ReentrancyGuard {
      *         This starts the claimDelay countdown. The owner can still
      *         cancel by calling checkIn() during this window.
      */
-    
-    
+    function initiateClaim() external onlyBeneficiary notClaimed {
+        if (status == VaultStatus.Claiming) revert ClaimAlreadyActive();
+        if (_beneficiaries.length == 0) revert NoBeneficiariesConfigured();
+
+        // Check-in window must have elapsed
+        uint256 windowClosesAt = lastCheckIn + checkInInterval;
+        if (block.timestamp < windowClosesAt) revert 
+        CheckInWindowStillOpen(windowClosesAt); 
+    }
+
     /**
      * @notice Update timing parameters. Callable at any non-Claimed status.
      */
