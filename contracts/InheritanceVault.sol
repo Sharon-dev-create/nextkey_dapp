@@ -86,6 +86,7 @@ contract InheritanceVault is ReentrancyGuard {
     event GuardianAdded(address indexed guardian);
     event CheckedIn(uint256 timestamp);
     event GuardianRemoved(address indexed guardian);
+    event ClaimInitiated(address indexed initiator, uint256 claimAvailableAt);
 
     // Errors
     error InvalidAddress();
@@ -270,7 +271,6 @@ contract InheritanceVault is ReentrancyGuard {
     // =========================================================================
     // BENEFICIARY — CLAIM FLOW
     // =========================================================================
-
     /**
      * @notice Step 1. Beneficiary signals the owner is inactive.
      *         Callable only after checkInInterval + gracePeriod have elapsed
@@ -290,10 +290,30 @@ contract InheritanceVault is ReentrancyGuard {
 
         // Grace period must have elasped
         uint256 gracePeriodEndsAt = windowClosesAt + gracePeriod;
-        if (block.timestamp <= gracePeriodEndsAt) revert
+        if (block.timestamp <= gracePeriodEndsAt) {revert
            GracePeriodStillRunning(gracePeriodEndsAt);
+        }
 
+        status           = VaultStatus.Claiming;
+        claimInitiatedAt = block.timestamp;
+        claimInitiator   = msg.sender;
+
+        emit ClaimInitiated(msg.sender, block.timestamp + claimDelay);
     }
+
+    /**
+     * @notice Step 2. Any beneficiary executes the claim after claimDelay.
+     *
+     * @dev    For each registered token:
+     *           distributable = min(owner.balanceOf(token), vault.allowance)
+     *         Tokens are pulled directly from the owner's wallet to each
+     *         beneficiary. The vault holds nothing at any point.
+     *
+     *         Tokens with zero distributable balance are skipped — they do
+     *         not revert the entire claim.
+     *
+     *         The last beneficiary receives any dust from integer division.
+     */
 
     /**
      * @notice Update timing parameters. Callable at any non-Claimed status.
