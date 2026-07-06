@@ -105,6 +105,7 @@ contract InheritanceVault is ReentrancyGuard {
     error GuardianNotFound();
     error ClaimAlreadyActive();
     error CheckInWindowStillOpen(uint256 windowClosesAt);
+    error GracePeriodStillRunning(uint256 gracePeriodEndsAt);
 
 
     // Contructor
@@ -286,6 +287,12 @@ contract InheritanceVault is ReentrancyGuard {
         uint256 windowClosesAt = lastCheckIn + checkInInterval;
         if (block.timestamp < windowClosesAt) revert 
         CheckInWindowStillOpen(windowClosesAt); 
+
+        // Grace period must have elasped
+        uint256 gracePeriodEndsAt = windowClosesAt + gracePeriod;
+        if (block.timestamp <= gracePeriodEndsAt) revert
+           GracePeriodStillRunning(gracePeriodEndsAt);
+
     }
 
     /**
