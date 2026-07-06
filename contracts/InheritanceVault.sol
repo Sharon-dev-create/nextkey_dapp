@@ -186,6 +186,12 @@ contract InheritanceVault is ReentrancyGaurd {
             total += shares[i];
          }
          if (total != BASIS_POINTS) revert InvalidShares();
+
+         // clear old list
+         for (uint256 i; i < wallets.length; ++i) {
+            isBeneficiary[_beneficiaries[i].wallet] = falsel
+         }
+         delete _beneficiaries;
      }
 
     /**
