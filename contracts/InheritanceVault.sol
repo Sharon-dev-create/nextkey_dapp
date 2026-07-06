@@ -260,9 +260,24 @@ contract InheritanceVault is ReentrancyGuard {
 
         isGuardian[guardian] = false;
         _removeAddress(_guardians, guardian);
+
         emit GuardianRemoved(guardian);
     }
+    
+    // =========================================================================
+    // BENEFICIARY — CLAIM FLOW
+    // =========================================================================
 
+    /**
+     * @notice Step 1. Beneficiary signals the owner is inactive.
+     *         Callable only after checkInInterval + gracePeriod have elapsed
+     *         since the last check-in.
+     *
+     *         This starts the claimDelay countdown. The owner can still
+     *         cancel by calling checkIn() during this window.
+     */
+    
+    
     /**
      * @notice Update timing parameters. Callable at any non-Claimed status.
      */
