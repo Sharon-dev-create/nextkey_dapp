@@ -25,7 +25,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  *   • If this frontend disappears the vault is still accessible on Etherscan.
  */
 
-contract InheritanceVault is ReentrancyGaurd {
+contract InheritanceVault is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // Constants
@@ -43,7 +43,7 @@ contract InheritanceVault is ReentrancyGaurd {
     // Types
     enum VaultStatus {
         Active,
-        Inactive.
+        Inactive,
         Claiming,
         Claimed
     }
@@ -82,6 +82,7 @@ contract InheritanceVault is ReentrancyGaurd {
     event TimingsUpdated(uint256 indexed checkInInterval, uint256 gracePeriod, uint256 claimDelay);
     event BeneficiariesSet(address[] indexed wallets, uint16[] indexed shares);
     event TokenRegistered(address indexed token);
+    event TokenUnregistered(address indexed token);
 
     // Errors
     error InvalidAddress();
@@ -92,9 +93,9 @@ contract InheritanceVault is ReentrancyGaurd {
     error NoBeneficiariesConfigured();
     error TooManyBeneficiaries();
     error InvalidShares();
-    error InvalidAddress();
     error TokenAlreadyRegistered();
     error TooManyTokens();
+    error TokenNotRegistered();
 
 
     // Contructor
@@ -125,10 +126,12 @@ contract InheritanceVault is ReentrancyGaurd {
 
     modifier onlyGaurdian() {
         if (!isGaurdian[msg.sender]) revert OnlyGaurdian();
+        _;
     }
 
     modifier notClaimed() {
         if ( status == VaultStatus.Claimed) revert AlreadyClaimed();
+        _;
     }
 
     /**
@@ -149,22 +152,10 @@ contract InheritanceVault is ReentrancyGaurd {
             emit VaultReactivated(block.timestamp);
         }
 
-        emit CheckedIn(block.timestamp)
+        emit CheckedIn(block.timestamp);
     }
 
-    // Internal fuunctions
-    function _assertValidTimings(uint256 _checkInInterval, uint256 _gracePeriod,
-    uint256 _claimDelay) internal pure {
-           if (
-            _checkInInterval < MIN_CHECKIN_INTERVAL ||
-            _checkInInterval > MAX_CHECKIN_INTERVAL ||
-            _gracePeriod     < MIN_GRACE_PERIOD     ||
-            _gracePeriod     > MAX_GRACE_PERIOD     ||
-            _claimDelay      < MIN_CLAIM_DELAY      ||
-            _claimDelay      > MAX_CLAIM_DELAY
-        ) revert InvalidTimings();
-    }
-
+    
     /**
      * @notice Replace the entire beneficiary list atomically.
      *         All previous beneficiaries are removed and the new list is set.
@@ -214,15 +205,28 @@ contract InheritanceVault is ReentrancyGaurd {
      *         attempt to distribute. Tokens with zero allowance or zero
      *         balance at claim time are skipped gracefully.
      */
-    function registerToken(address token) external onlyOwner notClaimes {
+    function registerToken(address token) external onlyOwner notClaimed {
         if (token == address(0))   revert InvalidAddress();
         if (isRegisteredToken[token]) revert TokenAlreadyRegistered();
         if (_tokens.length >= MAX_TOKENS) revert TooManyTokens();
 
-        _token.push(token);
+        _tokens.push(token);
         isRegisteredToken[token] = true;
 
         emit TokenRegistered(token);
+    }
+
+    /**
+     * @notice Unregister a token. Does not revoke ERC-20 approval —
+     *         the owner must do that separately on the token contract.
+     */
+    function unRegisterToken(address token) external onlyOwner {
+        if (!isRegisteredToken[token]) revert TokenNotRegistered();
+
+        isRegisteredToken[token] = false;
+        _removeAddress(_tokens, token);
+
+        emit TokenUnregistered(token);
     }
 
     /**
@@ -236,4 +240,29 @@ contract InheritanceVault is ReentrancyGaurd {
         claimDelay      = _claimDelay;
         emit TimingsUpdated(_checkInInterval, _gracePeriod, _claimDelay);      
     }
+
+    // Internal functions
+    function _assertValidTimings(uint256 _checkInInterval, uint256 _gracePeriod,
+    uint256 _claimDelay) internal pure {
+           if (
+            _checkInInterval < MIN_CHECKIN_INTERVAL ||
+            _checkInInterval > MAX_CHECKIN_INTERVAL ||
+            _gracePeriod     < MIN_GRACE_PERIOD     ||
+            _gracePeriod     > MAX_GRACE_PERIOD     ||
+            _claimDelay      < MIN_CLAIM_DELAY      ||
+            _claimDelay      > MAX_CLAIM_DELAY
+        ) revert InvalidTimings();
+    }
+
+    function _removeAddress(address[] storage arr, address target) internal {
+        uint256 len = arr.length;
+        for (uint256 i; i < len: ++i){
+            if (arr[i] == target) {
+                arr[i] arr[len - 1];
+                arr.pop();
+                  return;
+            }
+        }
+    }
+
 }
