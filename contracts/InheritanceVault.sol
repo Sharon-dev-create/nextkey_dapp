@@ -314,6 +314,9 @@ contract InheritanceVault is ReentrancyGuard {
      *
      *         The last beneficiary receives any dust from integer division.
      */
+    function executeClaim() external onlyBeneficiary nonReentrant {
+        
+    }
 
     /**
      * @notice Update timing parameters. Callable at any non-Claimed status.
