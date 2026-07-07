@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { Contract } from "ethers";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
+import { VaultFactory } from "../typechain-types";
 
 const DAY     = 86_400;
 const DAYS_30 = 30 * DAY;
