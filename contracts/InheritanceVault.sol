@@ -88,6 +88,7 @@ contract InheritanceVault is ReentrancyGuard {
     event GuardianRemoved(address indexed guardian);
     event ClaimInitiated(address indexed initiator, uint256 claimAvailableAt);
     event ClaimExecuted(uint256 indexed timestamp);
+    event ClaimPaused(address indexed pausedBy);
 
     // Errors
     error InvalidAddress();
@@ -168,6 +169,18 @@ contract InheritanceVault is ReentrancyGuard {
 
         emit CheckedIn(block.timestamp);
     }
+
+     /**
+     * @notice Update timing parameters. Callable at any non-Claimed status.
+     */
+    function updateTimings(uint256 _checkInInterval, uint256 _gracePeriod,
+    uint256 _claimDelay) external onlyOwner notClaimed {
+        _assertValidTimings(_checkInInterval, _gracePeriod, _claimDelay);
+        checkInInterval = _checkInInterval;
+        gracePeriod     = _gracePeriod;
+        claimDelay      = _claimDelay;
+        emit TimingsUpdated(_checkInInterval, _gracePeriod, _claimDelay);      
+    }  
 
     
     /**
@@ -338,21 +351,124 @@ contract InheritanceVault is ReentrancyGuard {
 
            // How much can this vault move?
            uint256 allowance = token.allowance(owner, address(this));
-           uint256 balance   = token.balanceOf(owner);
+           if (allowance == 0) continue;
+
+           // How much does the owner have?
+           uint256 balance = token.balanceOf(owner);
+           if (balance == 0) continue;
+
+           uint256 distributable = allowance < balance ? allowance : balance;
+
+           uint256 totalSent;
+           
+           // All bebeficiaries except the last get their exact share
+           for (uint256 i; i < benCount - 1; ++i){
+            uint256 share = (distributable * _beneficiaries[i].basisPoints) / BASIS_POINTS;
+
+            if (share == 0) continue;
+
+            totalSent += share;
+
+            // transferFrom owners wallet to beneiciary wallet
+            token.safeTransferFrom(owner,  _beneficiaries[i].wallet, share);
+           }
+
+           // Last beneficiaries gets remainder - handles integer dust
+           uint256 remainder = distributable - totalSent;
+           if (remainder > 0){
+             token.safeTransferFrom(owner, _beneficiaries[benCount -1].wallet,
+              remainder);
+           }
        }
     }
 
+     // =========================================================================
+    // GUARDIAN — EMERGENCY PAUSE
+    // =========================================================================
+
     /**
-     * @notice Update timing parameters. Callable at any non-Claimed status.
+     * @notice Reset an active Claiming state back to Inactive.
+     *         Gives the owner more time to respond without fully reactivating.
+     *         Only the owner's checkIn() restores Active status.
      */
-    function updateTimings(uint256 _checkInInterval, uint256 _gracePeriod,
-    uint256 _claimDelay) external onlyOwner notClaimed {
-        _assertValidTimings(_checkInInterval, _gracePeriod, _claimDelay);
-        checkInInterval = _checkInInterval;
-        gracePeriod     = _gracePeriod;
-        claimDelay      = _claimDelay;
-        emit TimingsUpdated(_checkInInterval, _gracePeriod, _claimDelay);      
+    function pauseClaim() external onlyGaurdian {
+        if (status != VaultStatus.Claiming) revert NotClaiming();
+
+        status = VaultStatus.Inactive;
+        claimInitiatedAt = 0;
+        claimInitiator = address(0);
+
+        emit ClaimPaused(msg.sender);
     }
+
+    // =========================================================================
+    // VIEWS
+    // =========================================================================
+    function secondsUntilOverdue() external view returns (uint256) {
+        uint256 deadline = lastCheckIn + checkInInterval;
+        if (block.timestamp >= deadline) return 0;
+        return deadline - block.timestamp;
+    }
+
+    /// @notice Timestamp after which executeClaim() can be called.
+    ///         Returns 0 if no claim is in progress.
+    function claimExecutableAt() external view returns (uint256) {
+        if (status != VaultStatus.Claiming) return 0;
+        return claimInitiatedAt + claimDelay;
+    }
+
+    /// @notice True if the owner has missed their check-in window.
+    function isOverdue() external view returns (bool) {
+        return block.timestamp > lastCheckIn + checkInInterval;
+    }
+
+     /**
+     * @notice Returns the live distributable balance for a token —
+     *         what beneficiaries would actually receive right now.
+     *         min(owner balance, vault allowance)
+     */
+    function distributableBalance(address token) external view returns (uint256){
+        uint256 allowance = IERC20(token).allowance(owner, address(this));
+        uint256 balance = IERC20(token).balanceOf(owner);
+
+        return allowance < balance ? allowance : balance;
+    }
+
+    /**
+     * @notice Returns each beneficiary's expected share of a given token
+     *         based on current distributable balance.
+     */
+    function previewDistribution(address token) external view 
+    returns(uint256[] memory amounts, address[] memory wallets){
+       uint256 distributable = this.distributableBalance(token);
+       uint256 benCount      = _beneficiaries.length;
+
+       wallets = new address[](benCount);
+       amounts = new uint256[](benCount);
+
+       uint256 totalSent;
+       for (uint256 i; i < benCount -1; ++i) {
+        wallets[i] = _beneficiaries[i].wallet;
+        amounts[i] = (distributable * _beneficiaries[i].basisPoints) / BASIS_POINTS;
+        totalSent += amounts[i];
+       }
+       // Last beneficiary gets remainder
+       wallets[benCount - 1] = _beneficiaries[benCount -1].wallet;
+       amounts[benCount - 1] = distributable - totalSent;
+    }
+
+    function getBeneficiaries() external view returns (Beneficiary[] memory){
+        return _beneficiaries;
+    }
+
+    function getRegisteredTokens() external view returns(address[] memory) {
+        return _tokens;
+    }
+
+    function getGuardians() external view returns (address[] memory) {
+        return _guardians;
+    }
+
 
     // Internal functions
     function _assertValidTimings(uint256 _checkInInterval, uint256 _gracePeriod,
