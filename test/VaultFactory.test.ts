@@ -5,10 +5,10 @@ import { Contract } from "ethers";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { VaultFactory } from "../typechain-types";
 
-const DAY     = 86_400;
+const DAY = 86_400;
 const DAYS_30 = 30 * DAY;
-const DAYS_7  =  7 * DAY;
-const DAYS_3  =  3 * DAY;
+const DAYS_7 = 7 * DAY;
+const DAYS_3 = 3 * DAY;
 
 async function deployFactory(deployer: SignerWithAddress) {
   const Factory = await ethers.getContractFactory("VaultFactory", deployer);
@@ -22,11 +22,11 @@ function defaultArgs(): [number, number, number] {
 }
 
 describe("VaultFactory", () => {
-  let factory  : VaultFactory;
-  let owner    : SignerWithAddress;
-  let userA    : SignerWithAddress;
-  let userB    : SignerWithAddress;
-  let stranger : SignerWithAddress;
+  let factory: VaultFactory;
+  let owner: SignerWithAddress;
+  let userA: SignerWithAddress;
+  let userB: SignerWithAddress;
+  let stranger: SignerWithAddress;
 
   beforeEach(async () => {
     [owner, userA, userB, stranger] = await ethers.getSigners();
@@ -52,7 +52,7 @@ describe("VaultFactory", () => {
   // ═══════════════════════════════════════════════════════════════════════════
   describe("createVault()", () => {
     it("deploys a vault and returns its address", async () => {
-      const tx      = await factory.connect(userA).createVault(...defaultArgs());
+      const tx = await factory.connect(userA).createVault(...defaultArgs());
       const receipt = await tx.wait();
       expect(receipt).to.not.be.null;
 
@@ -61,9 +61,7 @@ describe("VaultFactory", () => {
     });
 
     it("emits VaultCreated event with correct args", async () => {
-      await expect(
-        factory.connect(userA).createVault(...defaultArgs()),
-      )
+      await expect(factory.connect(userA).createVault(...defaultArgs()))
         .to.emit(factory, "VaultCreated")
         .withArgs(
           userA.address,
@@ -112,18 +110,24 @@ describe("VaultFactory", () => {
     it("vault owner is set to msg.sender", async () => {
       await factory.connect(userA).createVault(...defaultArgs());
       const vaultAddr = await factory.vaultOf(userA.address);
-      const vault     = await ethers.getContractAt("InheritanceVault", vaultAddr) as unknown as InheritanceVault;
+      const vault = (await ethers.getContractAt(
+        "InheritanceVault",
+        vaultAddr,
+      )) as unknown as InheritanceVault;
       expect(await vault.owner()).to.equal(userA.address);
     });
 
     it("vault timings are set correctly", async () => {
       const interval = 60 * DAY;
-      const grace    = 14 * DAY;
-      const delay    = 5  * DAY;
+      const grace = 14 * DAY;
+      const delay = 5 * DAY;
 
       await factory.connect(userA).createVault(interval, grace, delay);
       const vaultAddr = await factory.vaultOf(userA.address);
-      const vault     = await ethers.getContractAt("InheritanceVault", vaultAddr) as unknown as InheritanceVault;
+      const vault = (await ethers.getContractAt(
+        "InheritanceVault",
+        vaultAddr,
+      )) as unknown as InheritanceVault;
 
       expect(await vault.checkInInterval()).to.equal(interval);
       expect(await vault.gracePeriod()).to.equal(grace);
@@ -133,16 +137,13 @@ describe("VaultFactory", () => {
     it("forwards InvalidTimings revert from vault constructor", async () => {
       await expect(
         factory.connect(userA).createVault(
-          DAYS_3,       // below MIN_CHECKIN_INTERVAL
+          DAYS_3, // below MIN_CHECKIN_INTERVAL
           DAYS_7,
           DAYS_3,
         ),
       ).to.be.revertedWithCustomError(
         // revert bubbles up from InheritanceVault
-        await ethers.getContractAt(
-          "InheritanceVault",
-          ethers.ZeroAddress,
-        ),
+        await ethers.getContractAt("InheritanceVault", ethers.ZeroAddress),
         "InvalidTimings",
       );
     });
@@ -159,7 +160,7 @@ describe("VaultFactory", () => {
 
     it("getVault returns correct address", async () => {
       const fromMapping = await factory.vaultOf(userA.address);
-      const fromGetter  = await factory.getVault(userA.address);
+      const fromGetter = await factory.getVault(userA.address);
       expect(fromGetter).to.equal(fromMapping);
     });
 
