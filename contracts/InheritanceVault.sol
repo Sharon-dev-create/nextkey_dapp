@@ -87,6 +87,7 @@ contract InheritanceVault is ReentrancyGuard {
     event CheckedIn(uint256 timestamp);
     event GuardianRemoved(address indexed guardian);
     event ClaimInitiated(address indexed initiator, uint256 claimAvailableAt);
+    event ClaimedExecuted(uint256 indexed timestamp);
 
     // Errors
     error InvalidAddress();
@@ -107,6 +108,7 @@ contract InheritanceVault is ReentrancyGuard {
     error ClaimAlreadyActive();
     error CheckInWindowStillOpen(uint256 windowClosesAt);
     error GracePeriodStillRunning(uint256 gracePeriodEndsAt);
+    error NotClaiming();
 
 
     // Contructor
@@ -315,7 +317,17 @@ contract InheritanceVault is ReentrancyGuard {
      *         The last beneficiary receives any dust from integer division.
      */
     function executeClaim() external onlyBeneficiary nonReentrant {
-        
+       if(status != VaultStatus.Claiming) revert NotClaiming();
+
+       uint256 executableAt = claimInitiatedAt + claimDelay;
+       if (block.timestamp < executableAt) {
+        revert ClaimDelayStillRunning(executableAt);
+       }
+
+       // Mark claimed before any external calls
+       status = VaultStatus.Claimed;
+
+       emit ClaimExecuted(block.timestamp);
     }
 
     /**
