@@ -87,7 +87,7 @@ contract InheritanceVault is ReentrancyGuard {
     event CheckedIn(uint256 timestamp);
     event GuardianRemoved(address indexed guardian);
     event ClaimInitiated(address indexed initiator, uint256 claimAvailableAt);
-    event ClaimedExecuted(uint256 indexed timestamp);
+    event ClaimExecuted(uint256 indexed timestamp);
 
     // Errors
     error InvalidAddress();
@@ -109,6 +109,7 @@ contract InheritanceVault is ReentrancyGuard {
     error CheckInWindowStillOpen(uint256 windowClosesAt);
     error GracePeriodStillRunning(uint256 gracePeriodEndsAt);
     error NotClaiming();
+    error ClaimDelayStillRunning(uint256 executableAt);
 
 
     // Contructor
@@ -328,6 +329,17 @@ contract InheritanceVault is ReentrancyGuard {
        status = VaultStatus.Claimed;
 
        emit ClaimExecuted(block.timestamp);
+
+       uint256 tokenCount = _tokens.length;
+       uint256 benCount   = _beneficiaries.length;
+
+       for (uint256 t; t < tokenCount; ++t) {
+           IERC20 token = IERC20(_tokens[t]);
+
+           // How much can this vault move?
+           uint256 allowance = token.allowance(owner, address(this));
+           uint256 balance   = token.balanceOf(owner);
+       }
     }
 
     /**
