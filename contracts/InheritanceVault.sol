@@ -210,7 +210,7 @@ contract InheritanceVault is ReentrancyGuard {
          if (total != BASIS_POINTS) revert InvalidShares();
 
          // clear old list
-         for (uint256 i = 0; i < wallets.length; ++i) {
+         for (uint256 i = 0; i < _beneficiaries.length; ++i) {
             isBeneficiary[_beneficiaries[i].wallet] = false;
          }
          delete _beneficiaries;
@@ -247,7 +247,7 @@ contract InheritanceVault is ReentrancyGuard {
      * @notice Unregister a token. Does not revoke ERC-20 approval —
      *         the owner must do that separately on the token contract.
      */
-    function unRegisterToken(address token) external onlyOwner {
+    function unregisterToken(address token) external onlyOwner {
         if (!isRegisteredToken[token]) revert TokenNotRegistered();
 
         isRegisteredToken[token] = false;
@@ -409,6 +409,8 @@ contract InheritanceVault is ReentrancyGuard {
         if (block.timestamp >= deadline) return 0;
         return deadline - block.timestamp;
     }
+
+    
 
     /// @notice Timestamp after which executeClaim() can be called.
     ///         Returns 0 if no claim is in progress.
