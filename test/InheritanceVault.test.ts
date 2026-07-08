@@ -517,7 +517,7 @@ describe("InheritanceVault", () => {
   // ═══════════════════════════════════════════════════════════════════════════
   describe("executeClaim()", () => {
     let tokenAddress: string;
-    const MINT_AMOUNT = ethers.parseEther("1000");
+    const MINT_AMOUNT = ethers.parseEther("100");
 
     beforeEach(async () => {
       tokenAddress = await token.getAddress();

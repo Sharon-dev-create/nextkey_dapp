@@ -31,15 +31,15 @@ contract InheritanceVault is ReentrancyGuard {
     // Constants
     uint256 public constant MIN_CHECKIN_INTERVAL = 30 days;
     uint256 public constant MAX_CHECKIN_INTERVAL = 730 days;
-    uint256 public constant MIN_GRACE_PERIOD     = 7 days;
-    uint256 public constant MAX_GRACE_PERIOD     = 180 days;
-    uint256 public constant MIN_CLAIM_DELAY      = 3 days;
-    uint256 public constant MAX_CLAIM_DELAY      = 30 days;
-    uint256 public constant MAX_BENEFICIARIES    = 10;
-    uint256 public constant MAX_TOKENS           = 20;
-    uint256 public constant MAX_GUARDIANS        = 5;
-    uint256 public constant BASIS_POINTS         = 10_000;
-    
+    uint256 public constant MIN_GRACE_PERIOD = 7 days;
+    uint256 public constant MAX_GRACE_PERIOD = 180 days;
+    uint256 public constant MIN_CLAIM_DELAY = 3 days;
+    uint256 public constant MAX_CLAIM_DELAY = 30 days;
+    uint256 public constant MAX_BENEFICIARIES = 10;
+    uint256 public constant MAX_TOKENS = 20;
+    uint256 public constant MAX_GUARDIANS = 5;
+    uint256 public constant BASIS_POINTS = 10_000;
+
     // Types
     enum VaultStatus {
         Active,
@@ -49,21 +49,21 @@ contract InheritanceVault is ReentrancyGuard {
     }
 
     struct Beneficiary {
-      address wallet;
-      uint16 basisPoints;
+        address wallet;
+        uint16 basisPoints;
     }
 
     // Immutables
     address public immutable owner;
     address public immutable factory;
-    
+
     // Storage
     VaultStatus public status;
 
     uint256 public checkInInterval;
     uint256 public gracePeriod;
     uint256 public claimDelay;
-    
+
     uint256 public lastCheckIn;
     uint256 public claimInitiatedAt;
     address public claimInitiator;
@@ -75,7 +75,7 @@ contract InheritanceVault is ReentrancyGuard {
     mapping(address => bool) public isBeneficiary;
     mapping(address => bool) public isGuardian;
     mapping(address => bool) public isRegisteredToken;
-    
+
     // Events
     event ClaimCancelled(address indexed cancelledBy);
     event VaultReactivated(uint256 timestamp);
@@ -94,7 +94,7 @@ contract InheritanceVault is ReentrancyGuard {
     error InvalidAddress();
     error InvalidTimings();
     error OnlyBeneficiary();
-    error OnlyGaurdian();
+    error OnlyGuardian();
     error AlreadyClaimed();
     error NoBeneficiariesConfigured();
     error TooManyBeneficiaries();
@@ -112,20 +112,18 @@ contract InheritanceVault is ReentrancyGuard {
     error NotClaiming();
     error ClaimDelayStillRunning(uint256 executableAt);
 
-
     // Contructor
-    constructor(address _owner, uint256 _checkInInterval, uint256 _gracePeriod,
-    uint256 _claimDelay) {
-        if(_owner == address(0)) revert InvalidAddress();
+    constructor(address _owner, uint256 _checkInInterval, uint256 _gracePeriod, uint256 _claimDelay) {
+        if (_owner == address(0)) revert InvalidAddress();
         _assertValidTimings(_checkInInterval, _gracePeriod, _claimDelay);
 
-        owner         = _owner;
-        factory       = msg.sender;
+        owner = _owner;
+        factory = msg.sender;
         checkInInterval = _checkInInterval;
-        gracePeriod   = _gracePeriod;
-        claimDelay    = _claimDelay;
-        lastCheckIn   = block.timestamp;
-        status        = VaultStatus.Active;
+        gracePeriod = _gracePeriod;
+        claimDelay = _claimDelay;
+        lastCheckIn = block.timestamp;
+        status = VaultStatus.Active;
     }
 
     // Modifiers
@@ -145,7 +143,7 @@ contract InheritanceVault is ReentrancyGuard {
     }
 
     modifier notClaimed() {
-        if ( status == VaultStatus.Claimed) revert AlreadyClaimed();
+        if (status == VaultStatus.Claimed) revert AlreadyClaimed();
         _;
     }
 
@@ -159,10 +157,10 @@ contract InheritanceVault is ReentrancyGuard {
     function checkIn() external onlyOwner notClaimed {
         lastCheckIn = block.timestamp;
 
-        if (status ==  VaultStatus.Inactive || status == VaultStatus.Claiming) {
+        if (status == VaultStatus.Inactive || status == VaultStatus.Claiming) {
             claimInitiatedAt = 0;
             claimInitiator = address(0);
-            status         = VaultStatus.Active;
+            status = VaultStatus.Active;
             emit ClaimCancelled(owner);
             emit VaultReactivated(block.timestamp);
         }
@@ -170,19 +168,21 @@ contract InheritanceVault is ReentrancyGuard {
         emit CheckedIn(block.timestamp);
     }
 
-     /**
+    /**
      * @notice Update timing parameters. Callable at any non-Claimed status.
      */
-    function updateTimings(uint256 _checkInInterval, uint256 _gracePeriod,
-    uint256 _claimDelay) external onlyOwner notClaimed {
+    function updateTimings(uint256 _checkInInterval, uint256 _gracePeriod, uint256 _claimDelay)
+        external
+        onlyOwner
+        notClaimed
+    {
         _assertValidTimings(_checkInInterval, _gracePeriod, _claimDelay);
         checkInInterval = _checkInInterval;
-        gracePeriod     = _gracePeriod;
-        claimDelay      = _claimDelay;
-        emit TimingsUpdated(_checkInInterval, _gracePeriod, _claimDelay);      
-    }  
+        gracePeriod = _gracePeriod;
+        claimDelay = _claimDelay;
+        emit TimingsUpdated(_checkInInterval, _gracePeriod, _claimDelay);
+    }
 
-    
     /**
      * @notice Replace the entire beneficiary list atomically.
      *         All previous beneficiaries are removed and the new list is set.
@@ -194,37 +194,36 @@ contract InheritanceVault is ReentrancyGuard {
      * @param wallets  Ordered list of beneficiary addresses.
      * @param shares   Basis-point share for each wallet (must sum to 10_000).
      */
-     function setBeneficiaries(address[] calldata wallets, uint16[] calldata shares)
-      external onlyOwner notClaimed{
-         if (wallets.length == 0) revert NoBeneficiariesConfigured();
-         if (wallets.length > MAX_BENEFICIARIES) revert TooManyBeneficiaries();
-         if (wallets.length != shares.length) revert InvalidShares();
+    function setBeneficiaries(address[] calldata wallets, uint16[] calldata shares) external onlyOwner notClaimed {
+        if (wallets.length == 0) revert NoBeneficiariesConfigured();
+        if (wallets.length > MAX_BENEFICIARIES) revert TooManyBeneficiaries();
+        if (wallets.length != shares.length) revert InvalidShares();
 
-         // Validate shares
-         uint256 total;
-         for (uint256 i = 0; i < shares.length; ++i){
+        // Validate shares
+        uint256 total;
+        for (uint256 i = 0; i < shares.length; ++i) {
             if (wallets[i] == address(0)) revert InvalidAddress();
             if (wallets[i] == owner) revert InvalidAddress();
             total += uint256(shares[i]);
-         }
-         if (total != BASIS_POINTS) revert InvalidShares();
+        }
+        if (total != BASIS_POINTS) revert InvalidShares();
 
-         // clear old list
-         for (uint256 i = 0; i < _beneficiaries.length; ++i) {
+        // clear old list
+        for (uint256 i = 0; i < _beneficiaries.length; ++i) {
             isBeneficiary[_beneficiaries[i].wallet] = false;
-         }
-         delete _beneficiaries;
+        }
+        delete _beneficiaries;
 
-         // write new list
-         for (uint256 i = 0; i < wallets.length; ++i) {
+        // write new list
+        for (uint256 i = 0; i < wallets.length; ++i) {
             _beneficiaries.push(Beneficiary(wallets[i], shares[i]));
             isBeneficiary[wallets[i]] = true;
-         }
+        }
 
-         emit BeneficiariesSet(wallets, shares);
-     }
+        emit BeneficiariesSet(wallets, shares);
+    }
 
-     /**
+    /**
      * @notice Register an ERC-20 token to be distributed on claim.
      *
      * @dev    The owner must separately call approve() on the token contract
@@ -233,7 +232,7 @@ contract InheritanceVault is ReentrancyGuard {
      *         balance at claim time are skipped gracefully.
      */
     function registerToken(address token) external onlyOwner notClaimed {
-        if (token == address(0))   revert InvalidAddress();
+        if (token == address(0)) revert InvalidAddress();
         if (isRegisteredToken[token]) revert TokenAlreadyRegistered();
         if (_tokens.length >= MAX_TOKENS) revert TooManyTokens();
 
@@ -262,7 +261,7 @@ contract InheritanceVault is ReentrancyGuard {
      */
     function addGuardian(address guardian) external onlyOwner notClaimed {
         if (guardian == address(0)) revert InvalidAddress();
-        if (guardian == owner)  revert InvalidAddress();
+        if (guardian == owner) revert InvalidAddress();
         if (isGuardian[guardian]) revert GuardianAlreadyExists();
         if (_guardians.length >= MAX_GUARDIANS) revert TooManyGuardians();
 
@@ -283,7 +282,7 @@ contract InheritanceVault is ReentrancyGuard {
 
         emit GuardianRemoved(guardian);
     }
-    
+
     // =========================================================================
     // BENEFICIARY — CLAIM FLOW
     // =========================================================================
@@ -301,18 +300,19 @@ contract InheritanceVault is ReentrancyGuard {
 
         // Check-in window must have elapsed
         uint256 windowClosesAt = lastCheckIn + checkInInterval;
-        if (block.timestamp < windowClosesAt) revert 
-        CheckInWindowStillOpen(windowClosesAt); 
+        if (block.timestamp < windowClosesAt) {
+            revert CheckInWindowStillOpen(windowClosesAt);
+        }
 
         // Grace period must have elasped
         uint256 gracePeriodEndsAt = windowClosesAt + gracePeriod;
-        if (block.timestamp <= gracePeriodEndsAt) {revert
-           GracePeriodStillRunning(gracePeriodEndsAt);
+        if (block.timestamp <= gracePeriodEndsAt) {
+            revert GracePeriodStillRunning(gracePeriodEndsAt);
         }
 
-        status           = VaultStatus.Claiming;
+        status = VaultStatus.Claiming;
         claimInitiatedAt = block.timestamp;
-        claimInitiator   = msg.sender;
+        claimInitiator = msg.sender;
 
         emit ClaimInitiated(msg.sender, block.timestamp + claimDelay);
     }
@@ -331,58 +331,57 @@ contract InheritanceVault is ReentrancyGuard {
      *         The last beneficiary receives any dust from integer division.
      */
     function executeClaim() external onlyBeneficiary nonReentrant {
-       if(status != VaultStatus.Claiming) revert NotClaiming();
+        if (status != VaultStatus.Claiming) revert NotClaiming();
 
-       uint256 executableAt = claimInitiatedAt + claimDelay;
-       if (block.timestamp < executableAt) {
-        revert ClaimDelayStillRunning(executableAt);
-       }
+        uint256 executableAt = claimInitiatedAt + claimDelay;
+        if (block.timestamp < executableAt) {
+            revert ClaimDelayStillRunning(executableAt);
+        }
 
-       // Mark claimed before any external calls
-       status = VaultStatus.Claimed;
+        // Mark claimed before any external calls
+        status = VaultStatus.Claimed;
 
-       emit ClaimExecuted(block.timestamp);
+        emit ClaimExecuted(block.timestamp);
 
-       uint256 tokenCount = _tokens.length;
-       uint256 benCount   = _beneficiaries.length;
+        uint256 tokenCount = _tokens.length;
+        uint256 benCount = _beneficiaries.length;
 
-       for (uint256 t; t < tokenCount; ++t) {
-           IERC20 token = IERC20(_tokens[t]);
+        for (uint256 t; t < tokenCount; ++t) {
+            IERC20 token = IERC20(_tokens[t]);
 
-           // How much can this vault move?
-           uint256 allowance = token.allowance(owner, address(this));
-           if (allowance == 0) continue;
+            // How much can this vault move?
+            uint256 allowance = token.allowance(owner, address(this));
+            if (allowance == 0) continue;
 
-           // How much does the owner have?
-           uint256 balance = token.balanceOf(owner);
-           if (balance == 0) continue;
+            // How much does the owner have?
+            uint256 balance = token.balanceOf(owner);
+            if (balance == 0) continue;
 
-           uint256 distributable = allowance < balance ? allowance : balance;
+            uint256 distributable = allowance < balance ? allowance : balance;
 
-           uint256 totalSent;
-           
-           // All bebeficiaries except the last get their exact share
-           for (uint256 i; i < benCount - 1; ++i){
-            uint256 share = (distributable * _beneficiaries[i].basisPoints) / BASIS_POINTS;
+            uint256 totalSent;
 
-            if (share == 0) continue;
+            // All bebeficiaries except the last get their exact share
+            for (uint256 i; i < benCount - 1; ++i) {
+                uint256 share = (distributable * _beneficiaries[i].basisPoints) / BASIS_POINTS;
 
-            totalSent += share;
+                if (share == 0) continue;
 
-            // transferFrom owners wallet to beneiciary wallet
-            token.safeTransferFrom(owner,  _beneficiaries[i].wallet, share);
-           }
+                totalSent += share;
 
-           // Last beneficiaries gets remainder - handles integer dust
-           uint256 remainder = distributable - totalSent;
-           if (remainder > 0){
-             token.safeTransferFrom(owner, _beneficiaries[benCount -1].wallet,
-              remainder);
-           }
-       }
+                // transferFrom owners wallet to beneiciary wallet
+                token.safeTransferFrom(owner, _beneficiaries[i].wallet, share);
+            }
+
+            // Last beneficiaries gets remainder - handles integer dust
+            uint256 remainder = distributable - totalSent;
+            if (remainder > 0) {
+                token.safeTransferFrom(owner, _beneficiaries[benCount - 1].wallet, remainder);
+            }
+        }
     }
 
-     // =========================================================================
+    // =========================================================================
     // GUARDIAN — EMERGENCY PAUSE
     // =========================================================================
 
@@ -411,10 +410,9 @@ contract InheritanceVault is ReentrancyGuard {
     }
 
     /// @notice Timestamp after which a beneficiary can call initiateClaim().
-function claimInitiableAt() external view returns (uint256) {
-    return lastCheckIn + checkInInterval + gracePeriod;
-}
-
+    function claimInitiableAt() external view returns (uint256) {
+        return lastCheckIn + checkInInterval + gracePeriod;
+    }
 
     /// @notice Timestamp after which executeClaim() can be called.
     ///         Returns 0 if no claim is in progress.
@@ -428,12 +426,12 @@ function claimInitiableAt() external view returns (uint256) {
         return block.timestamp > lastCheckIn + checkInInterval;
     }
 
-     /**
+    /**
      * @notice Returns the live distributable balance for a token —
      *         what beneficiaries would actually receive right now.
      *         min(owner balance, vault allowance)
      */
-    function distributableBalance(address token) external view returns (uint256){
+    function distributableBalance(address token) external view returns (uint256) {
         uint256 allowance = IERC20(token).allowance(owner, address(this));
         uint256 balance = IERC20(token).balanceOf(owner);
 
@@ -444,30 +442,33 @@ function claimInitiableAt() external view returns (uint256) {
      * @notice Returns each beneficiary's expected share of a given token
      *         based on current distributable balance.
      */
-    function previewDistribution(address token) external view 
-    returns(uint256[] memory amounts, address[] memory wallets){
-       uint256 distributable = this.distributableBalance(token);
-       uint256 benCount      = _beneficiaries.length;
+    function previewDistribution(address token)
+        external
+        view
+        returns (uint256[] memory amounts, address[] memory wallets)
+    {
+        uint256 distributable = this.distributableBalance(token);
+        uint256 benCount = _beneficiaries.length;
 
-       wallets = new address[](benCount);
-       amounts = new uint256[](benCount);
+        wallets = new address[](benCount);
+        amounts = new uint256[](benCount);
 
-       uint256 totalSent;
-       for (uint256 i; i < benCount -1; ++i) {
-        wallets[i] = _beneficiaries[i].wallet;
-        amounts[i] = (distributable * _beneficiaries[i].basisPoints) / BASIS_POINTS;
-        totalSent += amounts[i];
-       }
-       // Last beneficiary gets remainder
-       wallets[benCount - 1] = _beneficiaries[benCount -1].wallet;
-       amounts[benCount - 1] = distributable - totalSent;
+        uint256 totalSent;
+        for (uint256 i; i < benCount - 1; ++i) {
+            wallets[i] = _beneficiaries[i].wallet;
+            amounts[i] = (distributable * _beneficiaries[i].basisPoints) / BASIS_POINTS;
+            totalSent += amounts[i];
+        }
+        // Last beneficiary gets remainder
+        wallets[benCount - 1] = _beneficiaries[benCount - 1].wallet;
+        amounts[benCount - 1] = distributable - totalSent;
     }
 
-    function getBeneficiaries() external view returns (Beneficiary[] memory){
+    function getBeneficiaries() external view returns (Beneficiary[] memory) {
         return _beneficiaries;
     }
 
-    function getRegisteredTokens() external view returns(address[] memory) {
+    function getRegisteredTokens() external view returns (address[] memory) {
         return _tokens;
     }
 
@@ -475,29 +476,23 @@ function claimInitiableAt() external view returns (uint256) {
         return _guardians;
     }
 
-
     // Internal functions
-    function _assertValidTimings(uint256 _checkInInterval, uint256 _gracePeriod,
-    uint256 _claimDelay) internal pure {
-           if (
-            _checkInInterval < MIN_CHECKIN_INTERVAL ||
-            _checkInInterval > MAX_CHECKIN_INTERVAL ||
-            _gracePeriod     < MIN_GRACE_PERIOD     ||
-            _gracePeriod     > MAX_GRACE_PERIOD     ||
-            _claimDelay      < MIN_CLAIM_DELAY      ||
-            _claimDelay      > MAX_CLAIM_DELAY
+    function _assertValidTimings(uint256 _checkInInterval, uint256 _gracePeriod, uint256 _claimDelay) internal pure {
+        if (
+            _checkInInterval < MIN_CHECKIN_INTERVAL || _checkInInterval > MAX_CHECKIN_INTERVAL
+                || _gracePeriod < MIN_GRACE_PERIOD || _gracePeriod > MAX_GRACE_PERIOD || _claimDelay < MIN_CLAIM_DELAY
+                || _claimDelay > MAX_CLAIM_DELAY
         ) revert InvalidTimings();
     }
 
     function _removeAddress(address[] storage arr, address target) internal {
         uint256 len = arr.length;
-        for (uint256 i; i < len; ++i){
+        for (uint256 i; i < len; ++i) {
             if (arr[i] == target) {
                 arr[i] = arr[len - 1];
                 arr.pop();
-                  return;
+                return;
             }
         }
     }
-
 }
