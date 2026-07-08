@@ -447,7 +447,10 @@ contract InheritanceVault is ReentrancyGuard {
         view
         returns (uint256[] memory amounts, address[] memory wallets)
     {
-        uint256 distributable = this.distributableBalance(token);
+        uint256 allowance = IERC20(token).allowance(owner, address(this));
+        uint256 balance = IERC20(token).balanceOf(owner);
+        uint256 distributable = allowance < balance ? allowance : balance;
+
         uint256 benCount = _beneficiaries.length;
 
         wallets = new address[](benCount);
