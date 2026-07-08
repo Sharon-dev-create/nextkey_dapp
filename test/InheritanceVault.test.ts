@@ -517,7 +517,7 @@ describe("InheritanceVault", () => {
   // ═══════════════════════════════════════════════════════════════════════════
   describe("executeClaim()", () => {
     let tokenAddress: string;
-    const MINT_AMOUNT = ethers.parseEther("100");
+    const MINT_AMOUNT = ethers.parseEther("10000");
 
     beforeEach(async () => {
       tokenAddress = await token.getAddress();
@@ -623,7 +623,7 @@ describe("InheritanceVault", () => {
     });
 
     it("distributes only available balance if owner spent some tokens", async () => {
-      const spent = ethers.parseEther("400");
+      const spent = ethers.parseEther("4000");
       await token.connect(owner).transfer(stranger.address, spent);
 
       const remaining = MINT_AMOUNT - spent;
@@ -640,7 +640,7 @@ describe("InheritanceVault", () => {
 
     it("handles single beneficiary — full balance transferred", async () => {
       const singleVault = await deployVault(owner);
-      const singleToken = await deployToken(owner, owner.address, ethers.parseEther("500"));
+      const singleToken = await deployToken(owner, owner.address, ethers.parseEther("5000"));
 
       await singleVault.connect(owner).setBeneficiaries([benA.address], [10000]);
       await singleVault.connect(owner).registerToken(await singleToken.getAddress());
