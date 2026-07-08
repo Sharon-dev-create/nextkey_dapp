@@ -138,7 +138,7 @@ contract InheritanceVault is ReentrancyGuard {
     }
 
     modifier onlyGaurdian() {
-        if (!isGuardian[msg.sender]) revert OnlyGaurdian();
+        if (!isGuardian[msg.sender]) revert OnlyGuardian();
         _;
     }
 
@@ -445,7 +445,7 @@ contract InheritanceVault is ReentrancyGuard {
     function previewDistribution(address token)
         external
         view
-        returns (uint256[] memory amounts, address[] memory wallets)
+        returns (address[] memory wallets, uint256[] memory amounts)
     {
         uint256 allowance = IERC20(token).allowance(owner, address(this));
         uint256 balance = IERC20(token).balanceOf(owner);
