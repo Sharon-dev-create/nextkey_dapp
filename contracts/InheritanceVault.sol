@@ -202,7 +202,7 @@ contract InheritanceVault is ReentrancyGuard {
 
          // Validate shares
          uint256 total;
-         for (uint256 i; i < shares.length; ++i){
+         for (uint256 i = 0; i < shares.length; ++i){
             if (wallets[i] == address(0)) revert InvalidAddress();
             if (wallets[i] == owner) revert InvalidAddress();
             total += uint256(shares[i]);
@@ -216,7 +216,7 @@ contract InheritanceVault is ReentrancyGuard {
          delete _beneficiaries;
 
          // write new list
-         for (uint256 i; i < wallets.length; ++i) {
+         for (uint256 i = 0; i < wallets.length; ++i) {
             _beneficiaries.push(Beneficiary(wallets[i], shares[i]));
             isBeneficiary[wallets[i]] = true;
          }
