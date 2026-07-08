@@ -410,7 +410,11 @@ contract InheritanceVault is ReentrancyGuard {
         return deadline - block.timestamp;
     }
 
-    
+    /// @notice Timestamp after which a beneficiary can call initiateClaim().
+function claimInitiableAt() external view returns (uint256) {
+    return lastCheckIn + checkInInterval + gracePeriod;
+}
+
 
     /// @notice Timestamp after which executeClaim() can be called.
     ///         Returns 0 if no claim is in progress.
