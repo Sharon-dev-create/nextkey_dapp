@@ -18,6 +18,7 @@ const DAYS_3  =  3  * DAY;
 const DEFAULT_CHECKIN_INTERVAL = DAYS_30;
 const DEFAULT_GRACE_PERIOD     = DAYS_7;
 const DEFAULT_CLAIM_DELAY      = DAYS_3;
+const MINT_AMOUNT = ethers.parseEther("10000"); // 10,000 tokens for testing
 
 // Basis points
 const BP = 10_000n;
@@ -46,7 +47,7 @@ async function deployVault(
 async function deployToken(
   deployer: SignerWithAddress,
   to: string,
-  amount: bigint = ethers.parseEther("10000"),
+  amount: bigint = MINT_AMOUNT,
 ) {
   const Factory = await ethers.getContractFactory("ERC20Mock", deployer);
   const token   = await Factory.deploy("Mock Token", "MKT", to, amount);
@@ -655,7 +656,7 @@ describe("InheritanceVault", () => {
       await singleVault.connect(benA).executeClaim();
 
       expect(await singleToken.balanceOf(benA.address))
-        .to.equal(ethers.parseEther("500"));
+        .to.equal(ethers.parseEther("5000"));
     });
 
     it("handles multiple tokens in one claim", async () => {
@@ -819,8 +820,8 @@ describe("InheritanceVault", () => {
 
       expect(wallets[0]).to.equal(benA.address);
       expect(wallets[1]).to.equal(benB.address);
-      expect(amounts[0]).to.equal((mintAmount * 6000n) / BP);
-      expect(amounts[0] + amounts[1]).to.equal(mintAmount);
+      expect(amounts[0]).to.equal((MINT_AMOUNT * 6000n) / BP);
+      expect(amounts[0] + amounts[1]).to.equal(MINT_AMOUNT);
     });
   });
 
