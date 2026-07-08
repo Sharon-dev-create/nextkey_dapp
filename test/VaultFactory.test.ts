@@ -113,7 +113,7 @@ describe("VaultFactory", () => {
       const vault = (await ethers.getContractAt(
         "InheritanceVault",
         vaultAddr,
-      )) as unknown as InheritanceVault;
+      ));
       expect(await vault.owner()).to.equal(userA.address);
     });
 
@@ -127,7 +127,7 @@ describe("VaultFactory", () => {
       const vault = (await ethers.getContractAt(
         "InheritanceVault",
         vaultAddr,
-      )) as unknown as InheritanceVault;
+      ));
 
       expect(await vault.checkInInterval()).to.equal(interval);
       expect(await vault.gracePeriod()).to.equal(grace);
