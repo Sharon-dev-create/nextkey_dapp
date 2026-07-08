@@ -11,7 +11,7 @@ const ETHERSCAN_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.24",
+    version: "0.8.26",
     settings: {
       optimizer: {
         enabled: true,
@@ -35,10 +35,8 @@ const config: HardhatUserConfig = {
   },
 
   etherscan: {
-    apiKey: {
-      sepolia: ETHERSCAN_KEY ?? "",
-    },
-  },
+  apiKey: process.env.ETHERSCAN_API_KEY!,
+},
 
   // Typechain output
   typechain: {
