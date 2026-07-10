@@ -1,4 +1,3 @@
-cat > ~/nextkey_dapp/nextkey-frontend/lib/utils.ts << 'EOF'
 import { type Address, formatUnits } from "viem";
 import { clsx, type ClassValue } from "clsx";
 

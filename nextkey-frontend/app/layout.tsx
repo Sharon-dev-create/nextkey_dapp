@@ -4,7 +4,7 @@ import { Providers }               from "./providers";
 import { Toaster }                 from "react-hot-toast";
 import "./globals.css";
 
-const Inter = Inter({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",

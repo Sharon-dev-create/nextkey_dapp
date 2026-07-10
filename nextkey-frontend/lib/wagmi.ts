@@ -1,4 +1,4 @@
-import { getDefaultConfig } from "rainbow-me/rainbowkit";
+import { getDefaultConfig } from "rainbow-me/rainbowKit";
 import { sepolia } from "wagmi/chains";
 
 export const wagmiConfig = getDefaultConfig ({
