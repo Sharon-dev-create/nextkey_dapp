@@ -94,7 +94,7 @@ body {
 
 /* ── RainbowKit overrides ─────────────────────────────────────────────── */
 [data-rk] {
-  --rk-colors-accentColor: #4edea3 !important;
+  --rk-colors-accentColor: #4edea3 !important;    
   --rk-colors-accentColorForeground: #003824 !important;
   --rk-colors-modalBackground: #1d2022 !important;
   --rk-colors-modalBorder: #3c4a42 !important;
