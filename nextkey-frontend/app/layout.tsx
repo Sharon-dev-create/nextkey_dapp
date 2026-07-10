@@ -33,6 +33,20 @@ export default function RootLayout({
       <body className="h-full antialiased">
        <Providers> 
         {children}
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+              style: {
+                background: "#1d2022",
+                color:      "#e0e3e5",
+                border:     "1px solid #3c4a42",
+                borderRadius: "4px",
+                fontSize:   "13px",
+              },
+              success: { iconTheme: { primary: "#4edea3", secondary: "#003824" } },
+              error:   { iconTheme: { primary: "#ffb4ab", secondary: "#690005" } },
+            }}
+          />
         </Providers>
        </body>
     </html>
