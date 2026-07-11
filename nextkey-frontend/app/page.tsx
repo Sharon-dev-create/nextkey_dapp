@@ -143,7 +143,8 @@ export default function LandingPage() {
 
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <ConnectButton label="Connect Wallet to Start" />
-          
+
+          <a
             href="https://sepolia.etherscan.io"
             target="_blank"
             rel="noopener noreferrer"
