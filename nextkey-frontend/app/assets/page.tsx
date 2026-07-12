@@ -10,7 +10,7 @@ import { AppShell }         from "@/components/layout/AppShell";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button }           from "@/components/ui/Button";
 import { Input }            from "@/components/ui/Input";
-import { FACTORY_ADDRESS, factoryAbi, vaultAbi } from "@/lib/contract";
+import { FACTORY_ADDRESS, factoryAbi, vaultAbi } from "@/lib/contracts";
 import { shortAddress, formatToken }              from "@/lib/utils";
 import { erc20Abi, formatUnits }                  from "viem";
 import { useReadContracts }                       from "wagmi";
