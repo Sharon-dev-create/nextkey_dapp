@@ -260,7 +260,7 @@ export default function AssetsPage() {
                     </span>
                   </div>
                   <div style={{ display: "flex", gap: "8px" }}>
-                    
+                    <a
                       href={`https://sepolia.etherscan.io/token/${addr}`}
                       target="_blank" rel="noopener noreferrer"
                       style={{ color: "var(--on-surface-variant)", display: "flex", alignItems: "center" }}

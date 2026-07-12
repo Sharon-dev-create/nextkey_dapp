@@ -10,7 +10,7 @@ import { AppShell }         from "@/components/layout/AppShell";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button }           from "@/components/ui/Button";
 import { Input }            from "@/components/ui/Input";
-import { FACTORY_ADDRESS, factoryAbi, vaultAbi } from "@/lib/contract";
+import { FACTORY_ADDRESS, factoryAbi, vaultAbi } from "@/lib/contracts";
 import { shortAddress, bpToPercent } from "@/lib/utils";
 
 type BenRow = { wallet: string; basisPoints: string };

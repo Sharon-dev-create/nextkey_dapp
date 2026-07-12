@@ -9,7 +9,7 @@ import { Button }           from "@/components/ui/Button";
 import {
   FACTORY_ADDRESS, factoryAbi, vaultAbi,
   VAULT_STATUS, type VaultStatus,
-} from "@/lib/contract";
+} from "@/lib/contracts";
 import {
   formatCountdown, formatTimestamp,
   formatDuration, secondsFromNow, shortAddress,
@@ -234,7 +234,7 @@ export default function DashboardPage() {
             }}>
               {vaultAddress ?? "—"}
             </div>
-            
+            <a
               href={`https://sepolia.etherscan.io/address/${vaultAddress}`}
               target="_blank" rel="noopener noreferrer"
               style={{ fontSize: "12px", color: "var(--primary)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "4px" }}
