@@ -63,8 +63,8 @@ body {
   background-color: var(--surface);
   color: var(--on-surface);
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 /* ── Typography utilities ─────────────────────────────────────────────── */
@@ -73,7 +73,7 @@ body {
 }
 
 .label-caps {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
