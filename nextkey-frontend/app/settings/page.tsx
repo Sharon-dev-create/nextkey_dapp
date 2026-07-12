@@ -10,7 +10,7 @@ import { AppShell }             from "@/components/layout/AppShell";
 import { Card, CardHeader }     from "@/components/ui/Card";
 import { Button }               from "@/components/ui/Button";
 import { Input }                from "@/components/ui/Input";
-import { FACTORY_ADDRESS, factoryAbi, vaultAbi, TIMING_PRESETS, DAY } from "@/lib/contract";
+import { FACTORY_ADDRESS, factoryAbi, vaultAbi, TIMING_PRESETS, DAY } from "@/lib/contracts";
 import { formatDuration }       from "@/lib/utils";
 
 function DaySlider({
