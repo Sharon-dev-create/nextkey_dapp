@@ -188,26 +188,26 @@ export type Beneficiary = {
 };
 
 // ── Time constants ─────────────────────────────────────────────────────
-export const DAY = 86_400;
+export const DAY = 86_400n;
 
 export const TIMING_PRESETS = {
   checkIn: [
-    { label: "30 days",  value: 30  * DAY },
-    { label: "90 days",  value: 90  * DAY },
-    { label: "180 days", value: 180 * DAY },
-    { label: "365 days", value: 365 * DAY },
-    { label: "2 years",  value: 730 * DAY },
+    { label: "30 days",  value: 30n  * DAY },
+    { label: "90 days",  value: 90n  * DAY },
+    { label: "180 days", value: 180n * DAY },
+    { label: "365 days", value: 365n * DAY },
+    { label: "2 years",  value: 730n * DAY },
   ],
   grace: [
-    { label: "7 days",   value: 7  * DAY },
-    { label: "14 days",  value: 14 * DAY },
-    { label: "30 days",  value: 30 * DAY },
-    { label: "60 days",  value: 60 * DAY },
+    { label: "7 days",   value: 7n  * DAY },
+    { label: "14 days",  value: 14n * DAY },
+    { label: "30 days",  value: 30n * DAY },
+    { label: "60 days",  value: 60n * DAY },
   ],
   delay: [
-    { label: "3 days",   value: 3  * DAY },
-    { label: "7 days",   value: 7  * DAY },
-    { label: "14 days",  value: 14 * DAY },
-    { label: "30 days",  value: 30 * DAY },
+    { label: "3 days",   value: 3n  * DAY },
+    { label: "7 days",   value: 7n  * DAY },
+    { label: "14 days",  value: 14n * DAY },
+    { label: "30 days",  value: 30n * DAY },
   ],
 } as const;
