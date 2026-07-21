@@ -81,148 +81,96 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section style={{
-        flex:           1,
-        display:        "flex",
-        flexDirection:  "column",
-        alignItems:     "center",
-        justifyContent: "center",
-        padding:        "80px 24px",
-        textAlign:      "center",
-        maxWidth:       "720px",
-        margin:         "0 auto",
-      }}>
-        <div style={{
-          display:        "inline-flex",
-          alignItems:     "center",
-          gap:            "6px",
-          padding:        "4px 12px",
-          borderRadius:   "2px",
-          background:     "rgba(78,222,163,0.08)",
-          border:         "1px solid rgba(78,222,163,0.2)",
-          fontSize:       "11px",
-          fontWeight:     600,
-          color:          "var(--primary)",
-          letterSpacing:  "0.06em",
-          textTransform:  "uppercase",
-          marginBottom:   "28px",
-        }}>
-          <span style={{
-            width: 6, height: 6,
-            borderRadius: "50%",
-            background: "var(--primary)",
-            display: "inline-block",
-          }} />
-          Live on Ethereum Sepolia
+<section style={{
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "60px",
+  alignItems: "center",
+  padding: "80px 48px",
+  maxWidth: "1280px",
+  margin: "0 auto",
+  width: "100%",
+}}>
+  {/* Left — copy */}
+  <div>
+    <div style={{
+      display: "inline-flex", alignItems: "center", gap: "6px",
+      padding: "4px 12px", borderRadius: "2px",
+      background: "rgba(78,222,163,0.08)", border: "1px solid rgba(78,222,163,0.2)",
+      fontSize: "11px", fontWeight: 600, color: "var(--primary)",
+      letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "24px",
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", display: "inline-block" }} />
+      Live on Ethereum Sepolia
+    </div>
+
+    <h1 style={{
+      fontSize: "40px", fontWeight: 700, lineHeight: 1.15,
+      letterSpacing: "-0.025em", color: "var(--on-surface)", marginBottom: "18px",
+    }}>
+      Your crypto.<br />
+      <span style={{ color: "var(--primary)" }}>Your legacy.</span>
+    </h1>
+
+    <p style={{
+      fontSize: "15px", lineHeight: 1.75,
+      color: "var(--on-surface-variant)", marginBottom: "36px",
+    }}>
+      NextKey is a non-custodial inheritance protocol. Designate
+      beneficiaries, approve asset access, and prove liveness
+      periodically. If you stop — your assets transfer automatically.
+      No lawyers. No intermediaries. Code only.
+    </p>
+
+    <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+      <ConnectButton label="Connect Wallet to Start" />
+      
+        href={`https://sepolia.etherscan.io/address/${process.env.NEXT_PUBLIC_FACTORY_ADDRESS}`}
+        target="_blank" rel="noopener noreferrer"
+        style={{
+          display: "inline-flex", alignItems: "center", gap: "6px",
+          fontSize: "13px", color: "var(--on-surface-variant)", textDecoration: "none",
+        }}
+      >
+        View contracts <ArrowRight size={13} />
+      </a>
+    </div>
+
+    {/* Stats row */}
+    <div style={{
+      display: "flex", gap: "24px", marginTop: "40px",
+      paddingTop: "28px", borderTop: "1px solid var(--outline-variant)",
+    }}>
+      {[
+        { value: "0%",    label: "Custody risk"     },
+        { value: "100%",  label: "On-chain"         },
+        { value: "10",    label: "Max beneficiaries"},
+      ].map(({ value, label }) => (
+        <div key={label}>
+          <div style={{
+            fontSize: "22px", fontWeight: 700,
+            color: "var(--primary)",
+            fontFamily: "'JetBrains Mono', monospace",
+          }}>
+            {value}
+          </div>
+          <div style={{ fontSize: "11px", color: "var(--on-surface-variant)", marginTop: "2px" }}>
+            {label}
+          </div>
         </div>
+      ))}
+    </div>
+  </div>
 
-        <h1 style={{
-          fontSize:      "42px",
-          fontWeight:    700,
-          lineHeight:    1.15,
-          letterSpacing: "-0.025em",
-          color:         "var(--on-surface)",
-          marginBottom:  "20px",
-        }}>
-          Your crypto.<br />
-          <span style={{ color: "var(--primary)" }}>Your legacy.</span>
-        </h1>
-
-        <p style={{
-          fontSize:     "16px",
-          lineHeight:   1.7,
-          color:        "var(--on-surface-variant)",
-          marginBottom: "40px",
-          maxWidth:     "520px",
-        }}>
-          NextKey is a non-custodial inheritance protocol. Designate
-          beneficiaries, approve asset access, and prove liveness periodically.
-          If you stop — your assets transfer automatically. No lawyers. No
-          intermediaries. Code only.
-        </p>
-
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          <ConnectButton label="Connect Wallet to Start" />
-
-          <a
-            href="https://sepolia.etherscan.io"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display:      "inline-flex",
-              alignItems:   "center",
-              gap:          "6px",
-              fontSize:     "13px",
-              color:        "var(--on-surface-variant)",
-              textDecoration: "none",
-            }}
-          >
-            View contracts
-            <ArrowRight size={13} />
-          </a>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section style={{
-        borderTop:   "1px solid var(--outline-variant)",
-        padding:     "64px 48px",
-        maxWidth:    "1280px",
-        margin:      "0 auto",
-        width:       "100%",
-      }}>
-        <div className="label-caps" style={{ textAlign: "center", marginBottom: "40px" }}>
-          How it works
-        </div>
-        <div style={{
-          display:             "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap:                 "1px",
-          background:          "var(--outline-variant)",
-          border:              "1px solid var(--outline-variant)",
-          borderRadius:        "8px",
-          overflow:            "hidden",
-        }}>
-          {FEATURES.map(({ icon: Icon, title, body }) => (
-            <div
-              key={title}
-              style={{
-                padding:    "28px 24px",
-                background: "var(--surface-container)",
-              }}
-            >
-              <div style={{
-                width:        36,
-                height:       36,
-                borderRadius: "6px",
-                background:   "rgba(78,222,163,0.08)",
-                border:       "1px solid rgba(78,222,163,0.15)",
-                display:      "flex",
-                alignItems:   "center",
-                justifyContent: "center",
-                marginBottom: "16px",
-              }}>
-                <Icon size={16} color="var(--primary)" strokeWidth={1.5} />
-              </div>
-              <div style={{
-                fontSize:     "13px",
-                fontWeight:   600,
-                color:        "var(--on-surface)",
-                marginBottom: "8px",
-              }}>
-                {title}
-              </div>
-              <div style={{
-                fontSize:   "13px",
-                lineHeight: 1.6,
-                color:      "var(--on-surface-variant)",
-              }}>
-                {body}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+  {/* Right — SVG illustration */}
+  <div style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}>
+    <HeroIllustration />
+  </div>
+</section>
 
       {/* Footer */}
       <footer style={{
