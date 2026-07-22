@@ -5,7 +5,6 @@ import { useRouter }        from "next/navigation";
 import { useAccount }       from "wagmi";
 import { ConnectButton }    from "@rainbow-me/rainbowkit";
 import { Shield, Clock, Users, ArrowRight, Lock } from "lucide-react";
-import { HeroIllustration } from "@/components/ui/HeroIllustration";
 
 const FEATURES = [
   {
@@ -125,7 +124,7 @@ export default function LandingPage() {
 
     <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
       <ConnectButton label="Connect Wallet to Start" />
-      <a
+      
         href={`https://sepolia.etherscan.io/address/${process.env.NEXT_PUBLIC_FACTORY_ADDRESS}`}
         target="_blank" rel="noopener noreferrer"
         style={{
