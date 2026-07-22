@@ -1,0 +1,22 @@
+{
+  "network": "sepolia",
+  "chainId": "11155111",
+  "deployer": "0x312b0E7efD0650581b122766A403FF336fa5cf8e",
+  "deployedAt": "2026-07-08T04:47:28.130Z",
+  "contracts": {
+    "VaultFactory": {
+      "address": "0xAA9202C6e80bCF722C6702827511b2BDdf5D1b55",
+      "constructorArgs": []
+    },
+    "InheritanceVault": {
+      "address": "0x5aA97fF4416d2f92BA7470755a830de249985e8F",
+      "note": "Reference deployment for Etherscan verification only. Users deploy their own vaults via VaultFactory.createVault()",
+      "constructorArgs": [
+        "0x312b0E7efD0650581b122766A403FF336fa5cf8e",
+        15552000,
+        2592000,
+        604800
+      ]
+    }
+  }
+}
