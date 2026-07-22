@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD                        
   "name": "nextkey-frontend",
   "version": "0.1.0",
   "private": true,
@@ -12,13 +11,16 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.11",
     "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-query-devtools": "^5.101.2",
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.24.0",
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "viem": "^2.55.0",
+    "wagmi": "^3.7.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -29,51 +31,5 @@
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
     "typescript": "^5"
-=======
-  "name": "nextkey_dapp",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
-    "@nomicfoundation/hardhat-ethers": "^3.1.3",
-    "@nomicfoundation/hardhat-ignition": "^0.15.16",
-    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.17",
-    "@nomicfoundation/hardhat-network-helpers": "^1.1.2",
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.1.3",
-    "@nomicfoundation/ignition-core": "^0.15.15",
-    "@typechain/ethers-v6": "^0.5.1",
-    "@typechain/hardhat": "^9.1.0",
-    "@types/chai": "^4.3.20",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "^26.1.0",
-    "chai": "^4.5.0",
-    "dotenv": "^17.4.2",
-    "ethers": "^6.17.0",
-    "hardhat": "^2.22.19",
-    "hardhat-gas-reporter": "^2.3.0",
-    "solidity-coverage": "^0.8.17",
-    "ts-node": "^10.9.2",
-    "typechain": "^8.3.2",
-    "typescript": "^5.6.3"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^5.6.1",
-    "@rainbow-me/rainbowkit": "^2.2.11",
-    "@tanstack/react-query": "^5.101.2",
-    "@tanstack/react-query-devtools": "^5.101.2",
-    "framer-motion": "^12.42.2",
-    "lucide-react": "^1.24.0",
-    "react-hot-toast": "^2.6.0",
-    "viem": "^2.55.0",
-    "wagmi": "^3.7.1"
->>>>>>> 0a71eca94e1d8bf1691a0e463f515501d64a
   }
 }
