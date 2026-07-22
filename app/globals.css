@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'); */
 
 /* ── Design Tokens ────────────────────────────────────────────────────── */
 :root {
@@ -63,8 +63,8 @@ body {
   background-color: var(--surface);
   color: var(--on-surface);
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 /* ── Typography utilities ─────────────────────────────────────────────── */
@@ -73,7 +73,7 @@ body {
 }
 
 .label-caps {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -94,7 +94,7 @@ body {
 
 /* ── RainbowKit overrides ─────────────────────────────────────────────── */
 [data-rk] {
-  --rk-colors-accentColor: #4edea3 !important;
+  --rk-colors-accentColor: #4edea3 !important;    
   --rk-colors-accentColorForeground: #003824 !important;
   --rk-colors-modalBackground: #1d2022 !important;
   --rk-colors-modalBorder: #3c4a42 !important;
